@@ -14,6 +14,7 @@
   Add the edge between that node and the first intenger in sequence
   When only two vertices remain join those and we have that graph *)
 
+
 module IntPairs =
   struct
     type t = int * int
@@ -31,7 +32,7 @@ let smallest prufer list =
   let list_aux = (List.filter (fun x -> not (List.mem x prufer)) list) in
   List.hd list_aux (* The list is already ordered from the precondition of the function decode *)
 
-let pp_int_pair  (x,y) =
+let pp_int_pair (x,y) =
   Printf.printf "(%d,%d)\n" x y
 
 let print_set set =
@@ -74,6 +75,30 @@ let decode_imp prufer list graph =
 let () = 
   let deo = [9;7;7;3;10;4;4;7;1] in
   let a = [1;7;5;7;7;1] in
+  let optimal = [2;4;0;1;3;3] in
+  let result3 = decode_rec optimal (generate_list (2 + List.length optimal)) PairsSet.empty in
   let result2 = decode_rec deo (generate_list (2 + List.length deo)) PairsSet.empty in
   let result = decode_rec a (generate_list (2+List.length a)) PairsSet.empty in
-  print_set result; print_set result2
+  print_set result; print_set result2; print_set result3
+
+let test_greeting_teacher () =
+  Alcotest.(check string)
+    "same string" "Hey Professor!"
+    ("Hello Director.")
+
+let test_greeting_director () =
+  Alcotest.(check string)
+    "same string" "Hello Director."
+    ("Hello Director.")
+    
+  let () =
+  Alcotest.run "Example Alcotest suite"
+    [
+      ( "Greetings",
+        [
+          Alcotest.test_case "Greeting teacher" `Quick
+            test_greeting_teacher;
+          Alcotest.test_case "Greeting director" `Quick
+            test_greeting_director;
+        ] );
+    ]
