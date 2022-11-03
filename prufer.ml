@@ -81,6 +81,10 @@ let () =
   let result = decode_rec a (generate_list (2+List.length a)) PairsSet.empty in
   print_set result; print_set result2; print_set result3
 
+(* One way to find leafs is to check what nodes have no connection in the set
+  So, there is no tuple (a,_) means that a is necessarily a leaf 
+  From then on, the encoding algorithm comes easily, either iteratively or recursively
+  Probably can finish this until tomorrow*)
 let test_greeting_teacher () =
   Alcotest.(check string)
     "same string" "Hey Professor!"
