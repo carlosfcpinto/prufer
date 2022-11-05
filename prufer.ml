@@ -49,6 +49,17 @@ let rec generate_list n =
     in
     aux n []
 
+let get_leafs nodes graph =
+  PairsSet.iter (fun (x,_) -> nodes := remove_elt x !nodes) graph;
+  !nodes
+
+let rec encode_rec graph =
+  begin
+    let list = get_leafs (ref (generate_list (PairsSet.cardinal graph+1))) graph in
+    
+  end
+
+
 (* Graph represented as a set of tuples *)
 (* List of partitions comes from the inductive path defined in the why3 file, by inductively going through each vertice and following its path  
   Maybe we can keep an HashTbl that keeps the partitions of the graph *)
@@ -85,7 +96,8 @@ let () =
   So, there is no tuple (a,_) means that a is necessarily a leaf 
   From then on, the encoding algorithm comes easily, either iteratively or recursively
   Probably can finish this until tomorrow*)
-let test_greeting_teacher () =
+
+(*let test_greeting_teacher () =
   Alcotest.(check string)
     "same string" "Hey Professor!"
     ("Hello Director.")
@@ -106,3 +118,4 @@ let test_greeting_director () =
             test_greeting_director;
         ] );
     ]
+*)
