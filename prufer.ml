@@ -49,14 +49,28 @@ let rec generate_list n =
     in
     aux n []
 
-let get_leafs nodes graph =
-  PairsSet.iter (fun (x,_) -> nodes := remove_elt x !nodes) graph;
-  !nodes
+let get_leafs (nodes: int list) graph =
+  let nodes_aux = ref nodes in
+  PairsSet.iter (fun (x,_) -> try nodes_aux := remove_elt x !nodes_aux with Not_found -> ()) graph;
+  !nodes_aux
 
-let rec encode_rec graph =
+let rec encode_rec graph nodes i=
   begin
-    let list = get_leafs (ref (generate_list (PairsSet.cardinal graph+1))) graph in
-    
+    List.iter (fun x -> print_int x) nodes; print_newline ();
+    print_int (List.length nodes); print_newline ();
+    if List.length nodes <= 2 then [] else
+    let list_nodes = get_leafs nodes graph in
+    let (node, leaf) = List.hd (PairsSet.elements ( PairsSet.filter (fun (x,y) -> y = List.hd list_nodes || x = List.hd list_nodes) graph)) in
+    print_endline "wtf3"; print_int i; print_newline ();
+    let graph = PairsSet.remove (node, leaf) graph in 
+    let nodes = remove_elt leaf nodes in 
+    node :: encode_rec graph nodes (i+1)
+    (* search through the set for node which has (a, b) where b is the lowest leaf in list
+      after that, we do this recursively, by eliminating the node b and (a, b) from the set
+      and calling function encode_rec with this new set and the list of leaf node must be recalculated 
+      we should keep list of nodes present in graph since we are always generating it we might add a node which has already been deleted
+      The function must have one more argument, the actual nodes that are in the graph, which at the start is precisely 
+      generate_list (   PairsSet.cardinal graph  +  1   )*)
   end
 
 
@@ -64,7 +78,7 @@ let rec encode_rec graph =
 (* List of partitions comes from the inductive path defined in the why3 file, by inductively going through each vertice and following its path  
   Maybe we can keep an HashTbl that keeps the partitions of the graph *)
 let rec decode_rec prufer list graph =
-  print_set graph; print_endline "\n";
+  (*print_set graph; print_endline "\n";*)
   match prufer with
     |hd::tl -> let a = smallest prufer list in
               decode_rec tl (remove_elt a list) (PairsSet.add (hd, a) graph)
@@ -90,7 +104,11 @@ let () =
   let result3 = decode_rec optimal (generate_list (2 + List.length optimal)) PairsSet.empty in
   let result2 = decode_rec deo (generate_list (2 + List.length deo)) PairsSet.empty in
   let result = decode_rec a (generate_list (2+List.length a)) PairsSet.empty in
-  print_set result; print_set result2; print_set result3
+  let sequence = encode_rec result (generate_list ((PairsSet.cardinal result) +1)) 0 in
+  let sequence2 = encode_rec result2 (generate_list ((PairsSet.cardinal result2) +1)) 0 in
+  let sequence3 = encode_rec result3 (generate_list ((PairsSet.cardinal result3) +1)) 0 in
+  print_set result; print_set result2; print_set result3; List.iter (fun x -> print_int x) sequence; print_newline ();
+  List.iter (fun x -> print_int x) sequence2; print_newline (); List.iter (fun x -> print_int x) sequence3; print_newline ();
 
 (* One way to find leafs is to check what nodes have no connection in the set
   So, there is no tuple (a,_) means that a is necessarily a leaf 
